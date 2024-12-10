@@ -1,4 +1,5 @@
 const Wishlist = require("../model/Whishlist");
+const CustomError = require('../utils/customError');
 
 // Add to Wishlist
 exports.addToWishlist = async (userId, productId) => {
@@ -19,21 +20,33 @@ exports.addToWishlist = async (userId, productId) => {
             await wishlist.save();
             return "Product added to existing wishlist";
         } else {
-            return "Product already exists in wishlist";
+            throw new CustomError("Product already exists in wishlist", 400);
         }
     }
 };
 
 // Remove from Wishlist
 exports.removeFromWishlist = async (userId, productId) => {
-    return await Wishlist.findOneAndUpdate(
+    const updatedWishlist = await Wishlist.findOneAndUpdate(
         { userId },
         { $pull: { products: productId } },
         { new: true }
     );
+
+    if (!updatedWishlist) {
+        throw new CustomError("Wishlist not found", 404);
+    }
+
+    return updatedWishlist;
 };
 
 // Get Wishlist
 exports.getWishlist = async (userId) => {
-    return await Wishlist.findOne({ userId }).populate('products')
+    const wishlist = await Wishlist.findOne({ userId }).populate('products');
+
+    if (!wishlist) {
+        throw new CustomError("Wishlist not found", 404);
+    }
+
+    return wishlist;
 };

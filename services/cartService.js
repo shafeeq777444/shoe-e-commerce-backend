@@ -1,13 +1,13 @@
 const User = require("../model/User");
 const Cart = require("../model/Cart");
-exports.addToCart=async(userId,addingProducts)=>{
-
+const CustomError = require("../utils/customError");
+exports.addToCart = async (userId, addingProducts) => {
     const user = await User.findById(userId);
     if (!user) {
-        return res.status(400).json({ message: "invalid user " });
+        throw new CustomError("invalid user", 400);
     }
     if (!addingProducts.length) {
-        return res.status(400).json({ message: "no addingProducts " });
+        throw new CustomError("No adding products", 400);
     }
     //add product to cart
     let cart = await Cart.findOne({ userId: userId });
@@ -34,17 +34,13 @@ exports.addToCart=async(userId,addingProducts)=>{
             }
         });
         await cart.save();
-        return {status:200,message:"Cart updated successfully"}
+        return { status: 200, message: "Cart updated successfully" };
     }
-}
-exports.getCart=async (userId)=>{
-    try {
-        const cart = await Cart.findOne({ userId }).populate('products.productId');
-        if (!cart) {
-            return { status: 400, message: "No cart found for the user" };
-        }
-        return cart.products;
-    } catch (err) {
-        throw new Error("Error fetching cart: " + err.message);
+};
+exports.getCart = async (userId) => {
+    const cart = await Cart.findOne({ userId }).populate("products.productId");
+    if (!cart) {
+        throw new CustomError("No cart found for the user", 400);
     }
-}
+    return cart.products;
+};

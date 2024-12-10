@@ -8,6 +8,7 @@ const whishlistRoutes=require('./routes/whishlistRoutes')
 const orderRoutes=require('./routes/orderRoutes')
 const adminRoutes=require('./routes/adminRoutes')
 const cookieParser = require('cookie-parser');
+const errorHandler=require('./middlewares/errorHandling')
 
 
 // Initialize the app
@@ -31,6 +32,9 @@ app.use('/api/users',orderRoutes)
 
 // admin routes
 app.use('/api/admin',adminRoutes)
+
+// Error Handler Middleware (must be added after routes)
+app.use(errorHandler); // Handle errors for the application
 
 
 // start the server
